@@ -2,6 +2,7 @@
 require 'includes/layout.php';
 
 $u=user();
+$cart=$_SESSION['cart']??[];
 $featured=db()->query("SELECT p.*,c.name cat FROM products p JOIN categories c ON c.id=p.category_id WHERE p.available=1 ORDER BY CASE p.name WHEN 'Spanish Latte' THEN 1 WHEN 'Caramel Macchiato' THEN 2 WHEN 'Iced Americano' THEN 3 WHEN 'Matcha Latte' THEN 4 WHEN 'Strawberry Frappe' THEN 5 WHEN 'Chocolate Croissant' THEN 6 ELSE 99 END,p.featured DESC,p.best_seller DESC,p.name LIMIT 6")->fetchAll();
 $photos=[
  'Spanish Latte'=>'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=85',
@@ -11,9 +12,9 @@ $photos=[
  'Strawberry Frappe'=>'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=900&q=85',
  'Chocolate Croissant'=>'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=85'
 ];
-$heroPhoto='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85';
-$promoPhoto='https://images.unsplash.com/photo-1513558161293-caad8c7e9e8d?auto=format&fit=crop&w=1000&q=85';
-$aboutPhoto='https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=85';
+$heroPhoto=BASE.'/assets/images/hero/hero-coffee.jpg';
+$promoPhoto=BASE.'/assets/images/promotions/iced-coffee.jpg';
+$aboutPhoto=BASE.'/assets/images/about/cafe-interior.jpg';
 function home_image($p,$fallback,$class,$alt,$loading='lazy'){
  $src=($p['image']??'') && is_file(__DIR__.'/assets/uploads/'.$p['image'])?BASE.'/assets/uploads/'.e($p['image']):$fallback;
  return '<img src="'.e($src).'" onerror="this.onerror=null;this.src=\''.e($fallback).'\';" class="'.e($class).'" alt="'.e($alt).'" loading="'.$loading.'">';
@@ -39,7 +40,6 @@ head('Home'); ?>
 <div class="relative h-[22rem] w-[17rem] rotate-3 overflow-hidden rounded-[48%_52%_45%_55%] border-[10px] border-white editorial-shadow sm:h-[30rem] sm:w-[24rem] lg:h-[37rem] lg:w-[29rem]">
 <?=home_image(['image'=>''],$heroPhoto,'h-full w-full object-cover','Latte art and coffee at Galleta Café','eager')?>
 </div>
-<div class="absolute bottom-1 left-0 hidden rounded-full bg-white px-4 py-3 text-xs font-semibold tracking-wide text-[#82747D] shadow sm:block">Slow mornings welcome</div>
 </div>
 </div>
 </section>
@@ -62,10 +62,10 @@ head('Home'); ?>
 <section class="rounded-[2rem] bg-white px-4 py-14 sm:px-8 sm:py-20" id="favorites">
 <div class="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p class="text-xs font-semibold uppercase tracking-[.25em] text-mute">From our counter</p><h2 class="editorial-display mt-2 text-4xl text-[#352B32] sm:text-5xl">Our customer favorites</h2></div><p class="max-w-xs text-sm leading-6 text-[#82747D]">Discover the flavors everyone loves, made fresh for your next café moment.</p></div>
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-<?php foreach($featured as $p): $photo=$photos[$p['name']]??$heroPhoto; ?><article class="group overflow-hidden rounded-3xl border border-[#F2D5E3] bg-[#FFF8FB] transition hover:-translate-y-1 hover:shadow-xl">
+<?php foreach($featured as $p): $photo=$photos[$p['name']]??$heroPhoto; $qty=(int)($cart[$p['id']]??0); ?><article data-product-id="<?=$p['id']?>" class="group overflow-hidden rounded-3xl border border-[#F2D5E3] bg-[#FFF8FB] transition hover:-translate-y-1 hover:shadow-xl">
 <div class="h-56 overflow-hidden"><?=home_image($p,$photo,'h-full w-full object-cover transition duration-500 group-hover:scale-105',$p['name'])?></div>
 <div class="p-5"><div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold text-[#352B32]"><?=e($p['name'])?></h3><p class="mt-1 text-sm leading-5 text-[#82747D]"><?=e($p['description'])?></p></div><b class="shrink-0 text-[#C978A1]"><?=money($p['price'])?></b></div>
-<?php if($p['available']): ?><form method="post" action="cart.php" class="mt-5"><?=csrf()?><input type="hidden" name="act" value="add"><input type="hidden" name="id" value="<?=$p['id']?>"><button class="w-full rounded-full border border-[#EFA6C8] py-2.5 text-sm font-semibold text-[#352B32] transition hover:bg-brand">Add to cart</button></form><?php endif ?></div>
+<?php if($p['available']): ?><div class="mt-5 flex items-center justify-end gap-2"><div class="inline-flex items-center rounded-full border border-[#EFA6C8] bg-white p-1"><form method="post" action="cart.php"><?=csrf()?><input type="hidden" name="return" value="index.php"><input type="hidden" name="act" value="dec"><input type="hidden" name="id" value="<?=$p['id']?>"><button class="h-9 w-9 rounded-full text-lg leading-none text-[#352B32] transition hover:bg-[#FFF0F7] disabled:cursor-not-allowed disabled:opacity-40" aria-label="Decrease <?=e($p['name'])?> quantity" <?=$qty?'':'disabled'?>>−</button></form><span data-cart-qty="<?=$p['id']?>" class="w-8 text-center text-sm font-semibold text-[#352B32]"><?=$qty?></span><form method="post" action="cart.php"><?=csrf()?><input type="hidden" name="return" value="index.php"><input type="hidden" name="act" value="inc"><input type="hidden" name="id" value="<?=$p['id']?>"><button class="h-9 w-9 rounded-full text-lg leading-none text-[#352B32]" aria-label="Increase <?=e($p['name'])?> quantity">+</button></form></div><form method="post" action="cart.php"><?=csrf()?><input type="hidden" name="act" value="add"><input type="hidden" name="id" value="<?=$p['id']?>"><button class="rounded-full border border-[#EFA6C8] px-4 py-2 text-sm font-semibold text-[#352B32] transition hover:bg-brand">Add</button></form></div><?php endif ?></div>
 </article><?php endforeach ?>
 </div>
 <div class="mt-8 text-center"><a href="<?=BASE?>/menu.php" class="font-semibold text-[#C978A1] hover:text-[#352B32]">See the full menu <span aria-hidden="true">→</span></a></div>
@@ -77,9 +77,9 @@ head('Home'); ?>
 </section>
 
 <section class="grid gap-4 border-y border-[#F2D5E3] py-12 sm:grid-cols-3 sm:gap-8">
-<div><div class="mb-3 text-2xl text-[#C978A1]">✦</div><h3 class="font-semibold text-[#352B32]">Freshly brewed</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">Quality coffee and handcrafted drinks prepared for you.</p></div>
-<div><div class="mb-3 text-2xl text-[#C978A1]">♡</div><h3 class="font-semibold text-[#352B32]">Made with love</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">Carefully prepared food and beverages in every order.</p></div>
-<div><div class="mb-3 text-2xl text-[#C978A1]">◌</div><h3 class="font-semibold text-[#352B32]">Cozy atmosphere</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">A welcoming place to relax, connect, and stay awhile.</p></div>
+<div><div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-soft text-[#C978A1]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 8h10M6 12h12M8 16h8M5 5h14v14H5z"/></svg></div><h3 class="font-semibold text-[#352B32]">Freshly brewed</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">Quality coffee and handcrafted drinks prepared for you.</p></div>
+<div><div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-soft text-[#C978A1]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 20s-7-3.8-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.2-7 9-7 9z"/></svg></div><h3 class="font-semibold text-[#352B32]">Made with love</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">Carefully prepared food and beverages in every order.</p></div>
+<div><div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-soft text-[#C978A1]"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 13h16M6 13a6 6 0 0 1 12 0M8 18h8"/></svg></div><h3 class="font-semibold text-[#352B32]">Cozy atmosphere</h3><p class="mt-2 text-sm leading-6 text-[#82747D]">A welcoming place to relax, connect, and stay awhile.</p></div>
 </section>
 
 <section class="relative my-16 overflow-hidden rounded-[2rem] bg-soft px-6 py-14 text-center sm:px-10 sm:py-20"><div class="absolute -right-12 -top-20 h-52 w-52 rounded-full bg-white/60"></div><div class="absolute -bottom-24 -left-12 h-48 w-48 rounded-[45%] bg-brand/40"></div><div class="relative"><p class="text-xs font-semibold uppercase tracking-[.25em] text-mute">Your next café moment</p><h2 class="editorial-display mt-3 text-4xl text-[#352B32] sm:text-6xl">Your next favorite cup<br>is waiting.</h2><p class="mx-auto mt-5 max-w-lg text-[#82747D]">Make your day a little sweeter. Explore our menu and order your favorites today.</p><a href="<?=BASE?>/menu.php" class="<?=BTN?> mt-7 inline-block">Order now</a></div></section>

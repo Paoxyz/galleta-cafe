@@ -1,6 +1,8 @@
--- Galleta Cafe - import in phpMyAdmin (creates pink_cafe_db)
-CREATE DATABASE IF NOT EXISTS pink_cafe_db CHARACTER SET utf8mb4; USE pink_cafe_db;
-SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS activity_logs,payments,order_items,orders,products,categories,cafe_settings,users; SET FOREIGN_KEY_CHECKS=1;
+-- Galleta Cafe - import in phpMyAdmin (recreates the demo pink_cafe_db database)
+-- WARNING: this resets all data in pink_cafe_db. Export production data before importing.
+DROP DATABASE IF EXISTS pink_cafe_db;
+CREATE DATABASE pink_cafe_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE pink_cafe_db;
 CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(100) NOT NULL,email VARCHAR(150) NOT NULL UNIQUE,phone VARCHAR(30),password VARCHAR(255) NOT NULL,role ENUM('customer','server','admin') NOT NULL DEFAULT 'customer',active TINYINT(1) NOT NULL DEFAULT 1,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,INDEX(role)) ENGINE=InnoDB;
 CREATE TABLE categories(id INT AUTO_INCREMENT PRIMARY KEY,name VARCHAR(80) NOT NULL,image VARCHAR(255),sort_order INT DEFAULT 0) ENGINE=InnoDB;
 CREATE TABLE products(id INT AUTO_INCREMENT PRIMARY KEY,category_id INT NOT NULL,name VARCHAR(120) NOT NULL,description TEXT,price DECIMAL(10,2) NOT NULL,image VARCHAR(255),available TINYINT(1) DEFAULT 1,featured TINYINT(1) DEFAULT 0,best_seller TINYINT(1) DEFAULT 0,created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(category_id) REFERENCES categories(id),INDEX(category_id)) ENGINE=InnoDB;

@@ -15,7 +15,7 @@ head('Order Board'); echo '<meta http-equiv="refresh" content="15">'; ?>
 <?php foreach($cols as $st=>$label): ?><section class="min-w-[17rem] lg:min-w-0 flex-1"><h2 class="font-medium mb-2"><?=$label?> <span class="text-xs bg-soft rounded-full px-2"><?=$cnt[$st]??0?></span></h2>
 <?php foreach($os as $o) if($o['status']===$st): $it->execute([$o['id']]); ?>
 <div class="<?=card('p-3 mb-3 '.($st==='pending'?'ring-2 ring-brand':''))?>"><div class="flex justify-between"><b><?=e($o['order_no'])?></b><span class="text-xs text-mute"><?=date('g:i A',strtotime($o['created_at']))?></span></div>
-<div class="text-sm"><?=e($o['cust'])?> · <?=e($o['order_type'])?></div>
+<div class="flex items-center justify-between gap-2 text-sm"><span><?=e($o['cust'])?> · <?=e($o['order_type'])?></span><a href="<?=BASE?>/receipt.php?order=<?=rawurlencode($o['order_no'])?>" class="text-xs font-semibold text-[#C978A1] hover:underline">Print receipt</a></div>
 <ul class="text-sm my-2"><?php foreach($it->fetchAll() as $x): ?><li><?=$x['qty']?> × <?=e($x['product_name'])?></li><?php endforeach ?></ul>
 <?php if($o['notes']): ?><p class="text-xs bg-soft rounded-xl p-2 mb-2">📝 <?=e($o['notes'])?></p><?php endif ?>
 <div class="text-xs text-mute mb-2"><?=money($o['total'])?> · <?=e($o['payment_method'])?> · <?=$o['payment_status']?></div>

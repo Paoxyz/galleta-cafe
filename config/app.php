@@ -26,7 +26,7 @@ function cafe_photo($name){
     'Matcha Latte'=>'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=900&q=85',
     'Strawberry Milk'=>'https://images.unsplash.com/photo-1553787499-6f9133860278?auto=format&fit=crop&w=900&q=85',
     'Chocolate Milk'=>'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=900&q=85',
-    'Blueberry Soda'=>'https://images.unsplash.com/photo-1513558161293-caad8c7e9e8d?auto=format&fit=crop&w=900&q=85',
+    'Blueberry Soda'=>'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=85',
     'Classic Milk Tea'=>'https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=900&q=85',
     'Wintermelon Milk Tea'=>'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?auto=format&fit=crop&w=900&q=85',
     'Okinawa Milk Tea'=>'https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=900&q=85',

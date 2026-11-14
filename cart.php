@@ -1,10 +1,11 @@
 <?php require 'includes/layout.php';
 $_SESSION['cart'] ??= []; $cart=&$_SESSION['cart'];
-if($_SERVER['REQUEST_METHOD']==='POST'){ check_csrf(); $id=(int)($_POST['id']??0);
+if($_SERVER['REQUEST_METHOD']==='POST'){ check_csrf(); $id=(int)($_POST['id']??0); $return=in_array($_POST['return']??'', ['index.php','menu.php'], true)?$_POST['return']:'cart.php'; $ajax=($_SERVER['HTTP_X_REQUESTED_WITH']??'')==='XMLHttpRequest';
+ $respond=function()use($ajax,$cart,$id){if($ajax){header('Content-Type: application/json');echo json_encode(['ok'=>true,'id'=>$id,'qty'=>(int)($cart[$id]??0),'count'=>array_sum($cart)]);exit;}};
  switch($_POST['act']??''){
-  case 'add': $cart[$id]=min(20,($cart[$id]??0)+1); flash('Added to cart.'); go('menu.php');
-  case 'inc': $cart[$id]=min(20,($cart[$id]??0)+1); break;
-  case 'dec': if(--$cart[$id]<=0) unset($cart[$id]); break;
+  case 'add': $cart[$id]=min(20,($cart[$id]??0)+1); $respond(); flash('Added to cart.'); go('menu.php');
+  case 'inc': $cart[$id]=min(20,($cart[$id]??0)+1); $respond(); go($return);
+  case 'dec': if(--$cart[$id]<=0) unset($cart[$id]); $respond(); go($return);
   case 'del': unset($cart[$id]); break;
   case 'note': $_SESSION['note']=substr($_POST['note'],0,300); break;
  }
